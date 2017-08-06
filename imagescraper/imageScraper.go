@@ -35,9 +35,7 @@ func getPNGImage(url []string, name string) {
 
 func readLines(path string) ([]string, error) {
   file, err := os.Open(path)
-  if err != nil {
-    return nil, err
-  }
+  check(err)
   defer file.Close()
 
   var lines []string
@@ -51,9 +49,7 @@ func readLines(path string) ([]string, error) {
 // writeLines writes the lines to the given file.
 func writeLines(lines []string, path string) error {
   file, err := os.Create(path)
-  if err != nil {
-    return err
-  }
+  check(err)
   defer file.Close()
 
   w := bufio.NewWriter(file)
@@ -78,12 +74,6 @@ func getJPGImage(url []string, name string) {
 	jpeg.Encode(f, img, nil)
 	return
 }
-
-/*func parseURL(url string) {
-	splitURL := strings.Split(url)
-	return splitURL
-}
-*/
 
 func main() {
 
