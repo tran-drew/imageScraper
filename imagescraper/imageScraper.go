@@ -15,6 +15,7 @@ func check(e error) {
 	}
 }
 
+// decoding png named files
 func getPNGImage(url []string, name string) {
 
 	resp, err := http.Get(strings.Join(url, "/"))
@@ -22,6 +23,7 @@ func getPNGImage(url []string, name string) {
 	defer resp.Body.Close()
 	// bytes, _ := ioutil.ReadAll(resp.Body)
 
+	
 	img, err := png.Decode(resp.Body)
 	check(err)
 
@@ -29,7 +31,25 @@ func getPNGImage(url []string, name string) {
 	f, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE, 0777)
 	check(err)
 	
-	png.Encode(f, img)
+	e := &png.Encoder{CompressionLevel: -3}
+	e.Encode(f, img)
+	return
+}
+
+// decoding jpg/jpeg named file
+func getJPGImage(url []string, name string) {
+	resp, err := http.Get(strings.Join(url, "/"))
+	check(err)
+	defer resp.Body.Close()
+
+	img, err := jpeg.Decode(resp.Body)
+	check(err)
+
+	filename := "./images/" + name
+	f, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE, 0777)
+	check(err)
+
+	jpeg.Encode(f, img, &jpeg.Options{Quality: 80})
 	return
 }
 
@@ -62,28 +82,6 @@ func writeLines(lines []string, path string) error {
   }
   return w.Flush()
 }
-func getJPGImage(url []string, name string) {
-	resp, err := http.Get(strings.Join(url, "/"))
-	check(err)
-	defer resp.Body.Close()
-
-	img, err := jpeg.Decode(resp.Body)
-	check(err)
-
-	filename := "./images/" + name
-	f, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE, 0777)
-	check(err)
-
-	
-	jpeg.Encode(f, img, nil)
-	return
-}
-
-/*func parseURL(url string) {
-	splitURL := strings.Split(url)
-	return splitURL
-}
-*/
 
 func main() {
 
@@ -95,11 +93,8 @@ func main() {
 			switch {
 				case strings.Contains(url[len(url)-1], ".png"):
 					getPNGImage(url, url[len(url)-1])
-				case strings.Contains(url[len(url)-1], ".jpg"):
-					getJPGImage(url, url[len(url)-1])
-				case strings.Contains(url[len(url)-1], ".jpeg"):
+				case strings.Contains(url[len(url)-1], ".jpg") || strings.Contains(url[len(url)-1], ".jpeg"):
 					getJPGImage(url, url[len(url)-1])
 			}
 	}
-	
 }
